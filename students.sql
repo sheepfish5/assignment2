@@ -5,7 +5,7 @@ create database assign2_students;
 use assign2_students;
 
 create table students (
-    id int auto_increment not null primary key ,
+    id bigint auto_increment not null primary key ,
     name char(30) not null ,
     gender char(10) not null check ( gender in ('male', 'female') ),
     birthday date not null default '2000-01-01'

@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+option go_package = "sheepfish5.com/goserver/protos/stuservice";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+package stuservice;
+
+// Interface exported by the server.
+service stuservice {
+  /* bool add(Student stu) */
+  rpc addStudent(Student) returns (google.protobuf.BoolValue) {}
+
+  /* Student queryByID(int stuID) */
+  rpc queryByID(google.protobuf.Int64Value) returns (google.protobuf.StringValue) {}
+
+  /* Students queryByName(String name) */
+  rpc queryByName(google.protobuf.StringValue) returns (stream Student) {}
+
+  /* bool deleteByID(int stuID) */
+  rpc deleteByID(google.protobuf.Int64Value) returns (google.protobuf.BoolValue) {}
+
+}
+
+message Student {
+  // student id
+  int64 id = 1;
+
+  // student name
+  string name = 2;
+
+  // student gender. male or female
+  string gender = 3;
+
+  // student birthday
+  google.protobuf.Timestamp birthday = 4;
+}

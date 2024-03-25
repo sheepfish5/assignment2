@@ -6,7 +6,7 @@
 
 ~~~Java
 /* 1. 添加一条学生信息 */
-bool add(Student stu) 
+bool addStudent(Student stu) 
 
 /* 2. 查询指定ID号的学生信息 */
 Student queryByID(int stuID)
@@ -15,9 +15,16 @@ Student queryByID(int stuID)
 Students queryByName(String name)
 
 /* 4. 删除指定ID号的学生信息 */
-bool delete(int stuID)
+bool deleteByID(int stuID)
 ~~~
 
-## 实现计划
+## implement plan
 
 使用MySQL作为DBMS，用Go做后端，不用ORM框架，用较为原生的database/sql包访问数据库，使用Java写客户端。客户端用gRPC调用后端。
+
+## used commands during the development
+
+~~~cmd
+# compile student_service.proto
+protoc --go_out=goserver --go_opt=module=sheepfish5.com/goserver --go-grpc_out=goserver --go-grpc_opt=module=sheepfish5.com/goserver student_service.proto
+~~~
