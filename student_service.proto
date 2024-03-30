@@ -13,7 +13,7 @@ service stuservice {
   rpc addStudent(Student) returns (google.protobuf.BoolValue) {}
 
   /* Student queryByID(int stuID) */
-  rpc queryByID(google.protobuf.Int64Value) returns (google.protobuf.StringValue) {}
+  rpc queryByID(google.protobuf.Int64Value) returns (Student) {}
 
   /* Students queryByName(String name) */
   rpc queryByName(google.protobuf.StringValue) returns (stream Student) {}
