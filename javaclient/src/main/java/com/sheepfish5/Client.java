@@ -6,13 +6,13 @@ import com.google.protobuf.BoolValue;
 import com.google.protobuf.Int64Value;
 import com.google.protobuf.StringValue;
 import com.google.protobuf.Timestamp;
+import com.sheepfish5.gui.ClientUI;
 import com.sheepfish5.protos.Student;
 import com.sheepfish5.protos.stuserviceGrpc;
 import com.sheepfish5.protos.stuserviceGrpc.stuserviceBlockingStub;
 
-import io.grpc.Grpc;
-import io.grpc.InsecureChannelCredentials;
 import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,10 +25,9 @@ public class Client
 {
     private stuserviceBlockingStub stub;
 
-    public Client(String target) {
+    public Client(String host, int port) {
         log.info("init client...");
-        ManagedChannel channel = Grpc.newChannelBuilder(target, InsecureChannelCredentials.create())
-                .build();
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
         stub = stuserviceGrpc.newBlockingStub(channel);
     }
 
@@ -72,9 +71,9 @@ public class Client
     public static void main( String[] args )
     {
         log.info("java client.");
-        Client client = new Client("localhost:18899");
-        client.queryById(1);
-        client.queryByName("avi");
+        // Client client = new Client("localhost", 18899);
+        // client.queryById(1);
+        // client.queryByName("avi");
         // Timestamp birthday = ClientUtil.GetTimestampFromDate("2001-02-01");
         // Student stu = Student.newBuilder()
         //         .setName("Hello World")
@@ -82,6 +81,7 @@ public class Client
         //         .setBirthday(birthday)
         //         .build();
         // client.addStudent("2001-02-01");
-        client.deleteById(12);
+        // client.deleteById(12);
+        ClientUI.startGUI();
     }
 }
