@@ -3,7 +3,6 @@ package com.sheepfish5.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -32,7 +31,7 @@ public class ClientUI extends JPanel
 
     JPanel rightPane;
 
-    private JTextField studentName;
+    static JFrame jFrame;
 
     private String addStudentGender = "female";
 
@@ -95,12 +94,12 @@ public class ClientUI extends JPanel
     }
 
     private void setAddStudentPane() {
-        rightPane.setLayout(new BoxLayout(rightPane, BoxLayout.Y_AXIS));
-        // innerGrid includes name, gender, birthday
-        JPanel innerGrid = new JPanel(new GridLayout(3, 2));
-        JTextField studentName = new JTextField(30);
-        studentName.setSize(40, 20);
-        JTextField studentBirthday = new JTextField(30);
+        rightPane.removeAll();
+        rightPane.revalidate();
+        rightPane.repaint();
+        rightPane.setLayout(new GridBagLayout());
+        JTextField studentName = new JTextField("", 30);
+        JTextField studentBirthday = new JTextField("", 30);
         
         JRadioButton femaleButton = new JRadioButton("female");
         femaleButton.setSelected(true);
@@ -118,25 +117,13 @@ public class ClientUI extends JPanel
         genderPanel.add(femaleButton);
         genderPanel.add(maleButton);
 
-        JLabel nameLabel = new JLabel("name:");
-        nameLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        JLabel genderLabel = new JLabel("gender:");
-        genderLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        JLabel birthdayLabel = new JLabel("birthday:");
-        birthdayLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-
-        innerGrid.add(nameLabel);
-        innerGrid.add(studentName);
-        innerGrid.add(genderLabel);
-        innerGrid.add(genderPanel);
-        innerGrid.add(birthdayLabel);
-        innerGrid.add(studentBirthday);
-        // innerGrid.setPreferredSize(new Dimension(100, 100));
-        innerGrid.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel nameLabel = new JLabel("name:", SwingConstants.CENTER);
+        JLabel genderLabel = new JLabel("gender:", SwingConstants.CENTER);
+        JLabel birthdayLabel = new JLabel("birthday:", SwingConstants.CENTER);
 
         // set the hint message label
-        JLabel hintMsg = new JLabel("");
-        hintMsg.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JLabel hintMsg = new JLabel("提示信息：");
+        // hintMsg.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         // set submit button
         JButton submit = new JButton("submit");
@@ -154,22 +141,259 @@ public class ClientUI extends JPanel
             // TODO: based on the return value, set the hint message
         });
 
-        JPanel padding = new JPanel();
-        padding.setPreferredSize(new Dimension(200, 200));
+        GridBagConstraints constraints = new GridBagConstraints();
+        /* nameLabel */
+        constraints.gridx = 1;
+        constraints.gridy = 1;
+        constraints.weighty = 0.3;
+        constraints.weightx = 0.3;  /* set the width */
+        rightPane.add(nameLabel, constraints);
+        /* studentName */
+        constraints.gridx = 2;
+        constraints.weighty = 0.3;
+        constraints.weightx = 0.3;  /* set the width */
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        rightPane.add(studentName, constraints);
+        constraints.weightx = 0;
+        /* genderLabel */
+        constraints.gridx = 1;
+        constraints.gridy = 2;
+        constraints.weighty = 0.3;
+        constraints.weightx = 0.3;  /* set the width */
+        rightPane.add(genderLabel, constraints);
+        /* genderPanel */
+        constraints.gridx = 2;
+        constraints.gridy = 2;
+        constraints.weighty = 0.6;
+        rightPane.add(genderPanel, constraints);
+        /* birthdayLabel */
+        constraints.gridx = 1;
+        constraints.gridy = 3;
+        constraints.weighty = 0.3;
+        rightPane.add(birthdayLabel, constraints);
+        /* studentBirthday */
+        constraints.gridx = 2;
+        constraints.gridy = 3;
+        constraints.weighty = 0.3;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        rightPane.add(studentBirthday, constraints);
+        /* submit */
+        constraints.gridx = 1;
+        constraints.gridy = 4;
+        constraints.weighty = 0.3;
+        rightPane.add(submit, constraints);
+        /* 提示信息 */
+        constraints.gridx = 0;
+        constraints.gridy = 5;
+        constraints.gridwidth = 3;
+        constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+        constraints.weighty = 0.3;
+        rightPane.add(hintMsg, constraints);
 
-        rightPane.add(innerGrid);
-        rightPane.add(submit);
-        rightPane.add(hintMsg);
-        rightPane.add(padding);
+        /* column 0 padding */
+        JPanel padding = new JPanel();
+        constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.weightx = 0.3;
+        constraints.weighty = 0.3;
+        rightPane.add(padding, constraints);
+        constraints.gridy = 1;
+        rightPane.add(new JPanel(), constraints);
+        constraints.gridy = 2;
+        rightPane.add(new JPanel(), constraints);
+        constraints.gridy = 3;
+        rightPane.add(new JPanel(), constraints);
+    }
+
+    private void setQueryByID() {
+        rightPane.removeAll();
+        rightPane.revalidate();
+        rightPane.repaint();
+        rightPane.setLayout(new GridBagLayout());
+        JLabel idLabel = new JLabel("id:", SwingConstants.CENTER);
+        JTextField studentID = new JTextField("", 30);
+        JButton submit = new JButton("submit");
+        JLabel hintMgs = new JLabel("提示信息: ", SwingConstants.LEFT);
+        submit.addActionListener(e -> {
+            String stuID = studentID.getText();
+            // TODO: invocate query
+            log.info("invocate queryByID: id={}", stuID);
+
+            // TODO: based on the return value, set the hintMsg
+        });
+
+        GridBagConstraints constraints = new GridBagConstraints();
+        /* idLabel */
+        constraints.gridx = 1;
+        constraints.gridy = 1;
+        constraints.weightx = 0.15;
+        constraints.weighty = 0.3;
+        rightPane.add(idLabel, constraints);
+        /* studentID */
+        constraints.gridx = 2;
+        constraints.gridy = 1;
+        constraints.weightx = 0.4;
+        constraints.weighty = 0.3;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        rightPane.add(studentID, constraints);
+        /* submit */
+        constraints.gridx = 1;
+        constraints.gridy = 2;
+        constraints.weightx = 0.15;
+        constraints.weighty = 0.3;
+        rightPane.add(submit, constraints);
+        /* hintMsg */
+        constraints.gridx = 0;
+        constraints.gridy = 3;
+        constraints.weighty = 0.3;
+        constraints.gridwidth = 3;
+        constraints.gridheight = 1;
+        constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+        rightPane.add(hintMgs, constraints);
+
+        /* padding */
+        constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.weightx = 0.3;
+        constraints.weighty = 0.3;
+        rightPane.add(new JPanel(), constraints);
+    }
+
+    private void setQueryByName() {
+        rightPane.removeAll();
+        rightPane.revalidate();
+        rightPane.repaint();
+        rightPane.setLayout(new GridBagLayout());
+        JLabel nameLabel = new JLabel("name:", SwingConstants.CENTER);
+        JTextField studentName = new JTextField("", 30);
+        JButton submit = new JButton("submit");
+        JLabel hintMgs = new JLabel("提示信息: ", SwingConstants.LEFT);
+        submit.addActionListener(e -> {
+            String name = studentName.getText();
+            // TODO: invocate query
+            log.info("invocate queryByName: name={}", name);
+
+            // TODO: based on the return value, set the hintMsg
+        });
+
+        GridBagConstraints constraints = new GridBagConstraints();
+        /* idLabel */
+        constraints.gridx = 1;
+        constraints.gridy = 1;
+        constraints.weightx = 0.15;
+        constraints.weighty = 0.3;
+        rightPane.add(nameLabel, constraints);
+        /* studentName */
+        constraints.gridx = 2;
+        constraints.gridy = 1;
+        constraints.weightx = 0.4;
+        constraints.weighty = 0.3;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        rightPane.add(studentName, constraints);
+        /* submit */
+        constraints.gridx = 1;
+        constraints.gridy = 2;
+        constraints.weightx = 0.15;
+        constraints.weighty = 0.3;
+        rightPane.add(submit, constraints);
+        /* hintMsg */
+        constraints.gridx = 0;
+        constraints.gridy = 3;
+        constraints.weighty = 0.3;
+        constraints.gridwidth = 3;
+        constraints.gridheight = 1;
+        constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+        rightPane.add(hintMgs, constraints);
+
+        /* padding */
+        constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.weightx = 0.3;
+        constraints.weighty = 0.3;
+        rightPane.add(new JPanel(), constraints);
+    }
+
+    private void setDeleteById() {
+        rightPane.removeAll();
+        rightPane.revalidate();
+        rightPane.repaint();
+        rightPane.setLayout(new GridBagLayout());
+        JLabel idLabel = new JLabel("id:", SwingConstants.CENTER);
+        JTextField studentID = new JTextField("", 30);
+        JButton submit = new JButton("submit");
+        JLabel hintMgs = new JLabel("提示信息: ", SwingConstants.LEFT);
+        submit.addActionListener(e -> {
+            String stuID = studentID.getText();
+            // TODO: invocate deleteByID
+            log.info("invocate deleteByID: id={}", stuID);
+
+            // TODO: based on the return value, set the hintMsg
+        });
+
+        GridBagConstraints constraints = new GridBagConstraints();
+        /* idLabel */
+        constraints.gridx = 1;
+        constraints.gridy = 1;
+        constraints.weightx = 0.15;
+        constraints.weighty = 0.3;
+        rightPane.add(idLabel, constraints);
+        /* studentID */
+        constraints.gridx = 2;
+        constraints.gridy = 1;
+        constraints.weightx = 0.4;
+        constraints.weighty = 0.3;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        rightPane.add(studentID, constraints);
+        /* submit */
+        constraints.gridx = 1;
+        constraints.gridy = 2;
+        constraints.weightx = 0.15;
+        constraints.weighty = 0.3;
+        rightPane.add(submit, constraints);
+        /* hintMsg */
+        constraints.gridx = 0;
+        constraints.gridy = 3;
+        constraints.weighty = 0.3;
+        constraints.gridwidth = 3;
+        constraints.gridheight = 1;
+        constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+        rightPane.add(hintMgs, constraints);
+
+        /* padding */
+        constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.weightx = 0.3;
+        constraints.weighty = 0.3;
+        rightPane.add(new JPanel(), constraints);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
+        if (e.getActionCommand().equals(addStudentString)) {
+            /* addStudent */
+            log.info("switch to addStudent panel");
+            setAddStudentPane();
+        } else if (e.getActionCommand().equals(queryByIDString)) {
+            /* queryByID */
+            log.info("switch to queryByID panel");
+            setQueryByID();
+        } else if (e.getActionCommand().equals(queryByNameString)) {
+            /* queryByName */
+            log.info("switch to queryByName panel");
+            setQueryByName();
+        } else {
+            /* deleteByID */
+            log.info("switch to deleteByID panel");
+            setDeleteById();
+        }
     }
 
     private static void createAndShowGUI() {
-        JFrame jFrame = new JFrame("assign2");
+        jFrame = new JFrame("assign2");
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         URL favicon = Client.class.getResource("favicon16x16.ico");
