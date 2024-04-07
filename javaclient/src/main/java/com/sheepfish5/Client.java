@@ -1,5 +1,7 @@
 package com.sheepfish5;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Iterator;
 
 import com.google.protobuf.BoolValue;
@@ -31,35 +33,52 @@ public class Client
         stub = stuserviceGrpc.newBlockingStub(channel);
     }
 
-    public void addStudent(String date) {
+    public Boolean addStudent(String name, String gender, String date) {
         Timestamp birthday = ClientUtil.GetTimestampFromDate(date);
-        Student stu = Student.newBuilder().setName("Hello World")
-                .setGender("male")
+        Student stu = Student.newBuilder().setName(name)
+                .setGender(gender)
                 .setBirthday(birthday)
                 .build();
         BoolValue result = stub.addStudent(stu);
         log.info("invocate addStudent({}), return {}",date, result.getValue());
+        return result.getValue();
     }
 
-    public void queryById(long id) {
+    public Student queryById(long id) {
         Int64Value id64 = Int64Value.newBuilder().setValue(id).build();
-        Student stu = stub.queryByID(id64);
+        Student stu;
+        try {
+            stu = stub.queryByID(id64);
+        } catch (StatusRuntimeException e) {
+            // TODO: handle exception
+            log.info("invocating queryById failed: {}", e.getStatus());
+            return null;
+        }
         log.info("invocate queryById({}), return {}", id, stu.toString());
+        return stu;
     }
 
-    public void queryByName(String name) {
+    public Iterable<Student> queryByName(String name) {
+        Deque<Student> result = new ArrayDeque<Student>();
         StringValue nameValue = StringValue.newBuilder().setValue(name).build();
         try{
             Iterator<Student> stus = stub.queryByName(nameValue);
             for (int i = 1; stus.hasNext(); i++) {
-                log.info("queryByName: receive {}: {}", i, stus.next());
+                Student stu = stus.next();
+                log.info("queryByName: receive {}: {}", i, stu);
+                result.add(stu);
             }
         } catch (StatusRuntimeException e) {
             e.printStackTrace();
+            return null;
         }
+        if (result.isEmpty()) {
+            return null;
+        }
+        return result;
     }
 
-    public void deleteById(long id) {
+    public Boolean deleteById(long id) {
         Int64Value id64 = Int64Value.newBuilder().setValue(id).build();
         BoolValue result = stub.deleteByID(id64);
         if (result.getValue()) {
@@ -67,21 +86,11 @@ public class Client
         } else {
             log.info("deleteById: failed to delete id[{}]", id);
         }
+        return result.getValue();
     }
     public static void main( String[] args )
     {
         log.info("java client.");
-        // Client client = new Client("localhost", 18899);
-        // client.queryById(1);
-        // client.queryByName("avi");
-        // Timestamp birthday = ClientUtil.GetTimestampFromDate("2001-02-01");
-        // Student stu = Student.newBuilder()
-        //         .setName("Hello World")
-        //         .setGender("male")
-        //         .setBirthday(birthday)
-        //         .build();
-        // client.addStudent("2001-02-01");
-        // client.deleteById(12);
         ClientUI.startGUI();
     }
 }

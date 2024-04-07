@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import com.google.protobuf.Timestamp;
 
@@ -25,5 +26,24 @@ public class ClientUtil {
         Instant instant = Instant.ofEpochSecond(timestamp.getSeconds());
         OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(instant, ZoneOffset.UTC);
         return offsetDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE);
+    }
+
+    public static Boolean VerifyStringDate(String date) {
+        try {
+            LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE);
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public static Long VerifyStringLong(String longValue) {
+        Long l;
+        try {
+            l = Long.parseLong(longValue);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+        return l;
     }
 }

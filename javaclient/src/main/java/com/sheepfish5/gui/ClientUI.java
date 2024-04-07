@@ -17,6 +17,8 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
 import com.sheepfish5.Client;
+import com.sheepfish5.ClientUtil;
+import com.sheepfish5.protos.Student;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,8 +37,12 @@ public class ClientUI extends JPanel
 
     private String addStudentGender = "female";
 
+    Client client;
+
     public ClientUI() {
         super(new BorderLayout());
+
+        client = new Client("localhost", 18899);
 
         // Create the radio buttons
         JRadioButton addStudentButton = new JRadioButton(addStudentString);
@@ -63,7 +69,6 @@ public class ClientUI extends JPanel
         group.add(queryByNameButton);
         group.add(deleteByIDButton);
 
-        // TODO: add a listener for each button
         addStudentButton.addActionListener(this);
         queryByIDButton.addActionListener(this);
         queryByNameButton.addActionListener(this);
@@ -132,13 +137,30 @@ public class ClientUI extends JPanel
             // get the value of studentName, birthday
             String name = studentName.getText();
             String birthday = studentBirthday.getText();
-            // get gender from addStudentGender
+            // get gender from addStudent
+            // validate the name and the birthday
+            if (name.equals("")) {
+                /* name is illegal. set the hintMsg */
+                hintMsg.setText("name不能为空");
+                return ;
+            }
+            if (!ClientUtil.VerifyStringDate(birthday)) {
+                /* birthday is illegal. set the hintMsg */
+                hintMsg.setText("birthday不合法, 合法示例: 2004-04-02");
+                return ;
+            }
 
-            // TODO: invocat addStudentGender
-            log.info("invocate addStudentGender: name={}, gender={}, birthday={}", 
+            // invocat addStudent
+            log.info("invocate addStudent: name={}, gender={}, birthday={}", 
                     name, addStudentGender, birthday);
+            Boolean result = client.addStudent(name, addStudentGender, birthday);
             
-            // TODO: based on the return value, set the hint message
+            // based on the return value, set the hint message
+            if (result) {
+                hintMsg.setText("添加成功!");
+            } else {
+                hintMsg.setText("添加失败");
+            }
         });
 
         GridBagConstraints constraints = new GridBagConstraints();
@@ -217,10 +239,23 @@ public class ClientUI extends JPanel
         JLabel hintMgs = new JLabel("提示信息: ", SwingConstants.LEFT);
         submit.addActionListener(e -> {
             String stuID = studentID.getText();
-            // TODO: invocate query
-            log.info("invocate queryByID: id={}", stuID);
+            Long id = ClientUtil.VerifyStringLong(stuID);
+            if (id == null) {
+                /* id is illegal. set the hintMsg */
+                hintMgs.setText("非法id");
+                return ;
+            }
+            // invocate query
+            log.info("invocate queryByID: id={}", id);
+            Student result = client.queryById(id);
 
-            // TODO: based on the return value, set the hintMsg
+            // based on the return value, set the hintMsg
+            if (result == null) {
+                /* query failed */
+                hintMgs.setText("查询失败, 该学生可能不存在或网络问题");
+            } else {
+                hintMgs.setText(String.format("成功: %s", result.toString()));
+            }
         });
 
         GridBagConstraints constraints = new GridBagConstraints();
@@ -269,13 +304,35 @@ public class ClientUI extends JPanel
         JLabel nameLabel = new JLabel("name:", SwingConstants.CENTER);
         JTextField studentName = new JTextField("", 30);
         JButton submit = new JButton("submit");
-        JLabel hintMgs = new JLabel("提示信息: ", SwingConstants.LEFT);
+        // JLabel hintMsg = new JLabel("提示信息: ", SwingConstants.LEFT);
+        JTextArea hintMsg = new JTextArea("提示信息");
+        hintMsg.setEditable(false);
+        JScrollPane hintMsgPane = new JScrollPane(hintMsg);
         submit.addActionListener(e -> {
             String name = studentName.getText();
-            // TODO: invocate query
+            if (name.equals("")) {
+                /* name is empty */
+                hintMsg.setText("name不能为空");
+                return ;
+            }
+            // invocate query
             log.info("invocate queryByName: name={}", name);
+            Iterable<Student> result = client.queryByName(name);
 
-            // TODO: based on the return value, set the hintMsg
+            // based on the return value, set the hintMsg
+            if (result == null) {
+                hintMsg.setText("查询失败, 该学生可能不存在或网络错误");
+            } else {
+                StringBuilder stringBuilder = new StringBuilder();
+                for (Student student : result) {
+                    stringBuilder.append(String.format("\"id=%d, name=%s, gender=%s, birthday=%s\"\n", 
+                            student.getId(),
+                            student.getName(),
+                            student.getGender(),
+                            ClientUtil.GetDateStringFromTimestamp(student.getBirthday())));
+                }
+                hintMsg.setText(stringBuilder.toString());
+            }
         });
 
         GridBagConstraints constraints = new GridBagConstraints();
@@ -303,9 +360,9 @@ public class ClientUI extends JPanel
         constraints.gridy = 3;
         constraints.weighty = 0.3;
         constraints.gridwidth = 3;
-        constraints.gridheight = 1;
-        constraints.anchor = GridBagConstraints.FIRST_LINE_START;
-        rightPane.add(hintMgs, constraints);
+        constraints.gridheight = 2;
+        constraints.fill = GridBagConstraints.BOTH;
+        rightPane.add(hintMsgPane, constraints);
 
         /* padding */
         constraints = new GridBagConstraints();
@@ -324,13 +381,25 @@ public class ClientUI extends JPanel
         JLabel idLabel = new JLabel("id:", SwingConstants.CENTER);
         JTextField studentID = new JTextField("", 30);
         JButton submit = new JButton("submit");
-        JLabel hintMgs = new JLabel("提示信息: ", SwingConstants.LEFT);
+        JLabel hintMsg = new JLabel("提示信息: ", SwingConstants.LEFT);
         submit.addActionListener(e -> {
             String stuID = studentID.getText();
-            // TODO: invocate deleteByID
+            Long id = ClientUtil.VerifyStringLong(stuID);
+            if (id == null) {
+                /* id is illegal */
+                hintMsg.setText("id非法");
+                return ;
+            }
+            // invocate deleteByID
             log.info("invocate deleteByID: id={}", stuID);
+            Boolean result = client.deleteById(id);
 
-            // TODO: based on the return value, set the hintMsg
+            // based on the return value, set the hintMsg
+            if (result) {
+                hintMsg.setText("删除成功");
+            } else {
+                hintMsg.setText("删除失败");
+            }
         });
 
         GridBagConstraints constraints = new GridBagConstraints();
@@ -360,7 +429,7 @@ public class ClientUI extends JPanel
         constraints.gridwidth = 3;
         constraints.gridheight = 1;
         constraints.anchor = GridBagConstraints.FIRST_LINE_START;
-        rightPane.add(hintMgs, constraints);
+        rightPane.add(hintMsg, constraints);
 
         /* padding */
         constraints = new GridBagConstraints();
@@ -401,7 +470,7 @@ public class ClientUI extends JPanel
             jFrame.setIconImage(new ImageIcon(favicon).getImage());
         }
 
-        // TODO: core code here
+        // core code here
         ClientUI newContentPane = new ClientUI();
         newContentPane.setOpaque(true);
         jFrame.setContentPane(newContentPane);

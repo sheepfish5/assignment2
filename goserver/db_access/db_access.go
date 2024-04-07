@@ -49,6 +49,7 @@ func (dba *DBAccess) AddStudent(stu *stuservice.Student) (int64, error) {
 	if dba.db == nil {
 		return 0, ErrDBNIL
 	}
+	log.Printf("AddStudent: insert: name=%s, gender=%s, birthday=%s", stu.Name, stu.Gender, stu.Birthday)
 	result, err := dba.db.Exec("insert into students (name, gender, birthday) value (?, ?, ?);", 
 			stu.Name, stu.Gender, util.GetDateString(stu.Birthday))
 	if err != nil {
