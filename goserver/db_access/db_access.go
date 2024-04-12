@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/go-sql-driver/mysql"
 	"sheepfish5.com/goserver/protos/stuservice"
@@ -18,29 +19,38 @@ type DBAccess struct {
 var ErrDBNIL = errors.New("db == nil")
 
 /* int this assignment, these arguments are solid */
-func (dba *DBAccess) InitDB(user, password, dbName string) {
+func (dba *DBAccess) InitDB(user, password, dbName, dbAddr string) {
 	log.Println("init mysql access...")
 
 	cfg := mysql.Config{
 		User: user,
 		Passwd: password,
 		Net:    "tcp",
-        Addr:   "127.0.0.1:3306",
+        Addr:   dbAddr,
         DBName: dbName,
 	}
 
 	var err error
 	dba.db, err = sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
-		log.Println("failed to open a database handler.")
-		log.Fatal(err)
+		log.Fatalf("mysql address parameter error: %v\n", err)
 	}
 
-	pingErr := dba.db.Ping()
-	if pingErr != nil {
-		log.Println("failed to connect to mysql.")
-		log.Fatal(pingErr)
+	i := 30
+	for (i >= 0) {
+		pingErr := dba.db.Ping()
+		if pingErr != nil {
+			log.Printf("failed to open a database handler. retrying[%d]...\n", i)
+			i--
+			time.Sleep(2 * time.Second)
+			continue
+		}
+		break
 	}
+	if i < 0 {
+		log.Fatal("already retry for 31 times. exit.")
+	}
+
 	log.Println("success to access mysql.")
 }
 

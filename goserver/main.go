@@ -71,6 +71,7 @@ func newStuServiceServer() *stuserviceServer {
 		os.Getenv("DBUSER"),
 		os.Getenv("DBPASS"),
 		os.Getenv("DBNAME"),
+		os.Getenv("DBADDR"),
 	)
 	return &service
 }

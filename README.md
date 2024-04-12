@@ -1,5 +1,7 @@
 # 分布式计算第二次作业
 
+XDU 2024春 大三下 
+
 ## 要求
 
 客户端与服务器端利用RPC机制进行协作，服务器至少暴露如下RPC接口：
@@ -20,9 +22,9 @@ bool deleteByID(int stuID)
 
 ## implement plan
 
-使用MySQL作为DBMS，用Go做后端，不用ORM框架，用较为原生的database/sql包访问数据库，使用Java写客户端。客户端用gRPC调用后端。
+用Go做后端，不用ORM框架，用较为原生的database/sql包访问Mysql，使用Java Swing写客户端。客户端用gRPC调用后端。
 
-## used commands during the development
+## 根据Protocol Buffer生成Go代码
 
 ~~~cmd
 # compile student_service.proto

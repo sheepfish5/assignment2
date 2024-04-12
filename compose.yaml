@@ -1,0 +1,18 @@
+services:
+  sheepfish5_db:
+    image: mysql:8.0
+    volumes:
+      - ./students.sql:/docker-entrypoint-initdb.d/students.sql
+    environment:
+      MYSQL_ROOT_PASSWORD : secret
+  sheepfish5_goserver:
+    image: sheepfish5/assign2-goserver:1.0
+    environment:
+      - DBUSER=root
+      - DBPASS=secret
+      - DBNAME=assign2_students
+      - DBADDR=sheepfish5_db:3306
+    ports:
+      - 0.0.0.0:18899:18899
+    depends_on:
+      - sheepfish5_db

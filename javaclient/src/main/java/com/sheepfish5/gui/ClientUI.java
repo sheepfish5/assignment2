@@ -10,7 +10,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.net.URL;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -254,7 +253,11 @@ public class ClientUI extends JPanel
                 /* query failed */
                 hintMgs.setText("查询失败, 该学生可能不存在或网络问题");
             } else {
-                hintMgs.setText(String.format("成功: %s", result.toString()));
+                hintMgs.setText(String.format("成功: id=%d, name=%s, gender=%s, birthday=%s", 
+                        result.getId(),
+                        result.getName(),
+                        result.getGender(),
+                        ClientUtil.GetDateStringFromTimestamp(result.getBirthday())));
             }
         });
 
@@ -464,11 +467,6 @@ public class ClientUI extends JPanel
     private static void createAndShowGUI() {
         jFrame = new JFrame("assign2");
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        URL favicon = Client.class.getResource("favicon16x16.ico");
-        if (favicon != null) {
-            jFrame.setIconImage(new ImageIcon(favicon).getImage());
-        }
 
         // core code here
         ClientUI newContentPane = new ClientUI();
